@@ -67,12 +67,18 @@ int main(void)
 		// ¬ключаем тактирование таймера
 		RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 		//инициализируем таймер
-		TIM3->PSC = 36000 - 1;
-		TIM3->ARR = DEF_ARR;
+		TIM_TimeBaseInitTypeDef tim3;
+		tim3.TIM_ClockDivision = TIM_CKD_DIV1;
+		tim3.TIM_CounterMode = TIM_CounterMode_Up;
+		tim3.TIM_Period = 1000 - 1;
+		tim3.TIM_Prescaler = 36000 - 1;
+		TIM_TimeBaseInit(TIM3, &tim3);
+	//	TIM3->PSC = 36000 - 1;
+	//	TIM3->ARR = DEF_ARR;
 		//запускаем таймер
-		TIM3->CR1 |= TIM_CR1_CEN;
+	//	TIM3->CR1 |= TIM_CR1_CEN;
 		//разрешаем прерывание
-		TIM3->DIER |= TIM_DIER_UIE;
+	//	TIM3->DIER |= TIM_DIER_UIE;
 
 		//разрешаем обработку прерывани€
 		NVIC_EnableIRQ(TIM3_IRQn);
