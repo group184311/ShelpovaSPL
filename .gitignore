@@ -2,3 +2,8 @@
 *.xml
 *.ld
 *.s 
+*.o
+/Debug
+/startup
+/inc
+/CMSIS
