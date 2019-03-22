@@ -7,42 +7,42 @@
   * @brief   Default main function.
   ******************************************************************************
 */
-#define IS_BUT1_PUSH (GPIOC->IDR & GPIO_IDR_IDR14) //êíîïêà 1 PC14
-#define IS_BUT2_PUSH (GPIOB->IDR & GPIO_IDR_IDR10) //êíîïêà 2 PB10
-#define IS_BUT3_PUSH (!(GPIOB->IDR & GPIO_IDR_IDR14)) //êíîïêà 3 PB14
-#define IS_BUT4_PUSH (!(GPIOB->IDR & GPIO_IDR_IDR7)) //êíîïêà 4 PB7
+#define IS_BUT1_PUSH (GPIOC->IDR & GPIO_IDR_IDR14) //ÃªÃ­Ã®Ã¯ÃªÃ  1 PC14
+#define IS_BUT2_PUSH (GPIOB->IDR & GPIO_IDR_IDR10) //ÃªÃ­Ã®Ã¯ÃªÃ  2 PB10
+#define IS_BUT3_PUSH (!(GPIOB->IDR & GPIO_IDR_IDR14)) //ÃªÃ­Ã®Ã¯ÃªÃ  3 PB14
+#define IS_BUT4_PUSH (!(GPIOB->IDR & GPIO_IDR_IDR7)) //ÃªÃ­Ã®Ã¯ÃªÃ  4 PB7
 
-//óñòàíîâêà ñâåòîäèîäà â ñîñòîÿíèå "ãîðåòü" - ëîãè÷.0 (reset)
-//è â ñîñòîÿíèå "íå ãîðåòü" - ëîãè÷.1 (set)
+//Ã³Ã±Ã²Ã Ã­Ã®Ã¢ÃªÃ  Ã±Ã¢Ã¥Ã²Ã®Ã¤Ã¨Ã®Ã¤Ã  Ã¢ Ã±Ã®Ã±Ã²Ã®Ã¿Ã­Ã¨Ã¥ "Ã£Ã®Ã°Ã¥Ã²Ã¼" - Ã«Ã®Ã£Ã¨Ã·.0 (reset)
+//Ã¨ Ã¢ Ã±Ã®Ã±Ã²Ã®Ã¿Ã­Ã¨Ã¥ "Ã­Ã¥ Ã£Ã®Ã°Ã¥Ã²Ã¼" - Ã«Ã®Ã£Ã¨Ã·.1 (set)
 #define SET_LED_ON (GPIOC->BSRR=GPIO_BSRR_BR13)
 #define SET_LED_OFF (GPIOC->BSRR=GPIO_BSRR_BS13)
 
-//ïðîâåðêà ñîñòîÿíèÿ äèîäà
+//Ã¯Ã°Ã®Ã¢Ã¥Ã°ÃªÃ  Ã±Ã®Ã±Ã²Ã®Ã¿Ã­Ã¨Ã¿ Ã¤Ã¨Ã®Ã¤Ã 
 #define IS_LED_OFF (GPIOC->ODR & GPIO_ODR_ODR13)
 
-//ìèíèìàëüíàÿ çàäåðæêà êíîïêè 1 = 50ìñ
+//Ã¬Ã¨Ã­Ã¨Ã¬Ã Ã«Ã¼Ã­Ã Ã¿ Ã§Ã Ã¤Ã¥Ã°Ã¦ÃªÃ  ÃªÃ­Ã®Ã¯ÃªÃ¨ 1 = 50Ã¬Ã±
 #define MIN_TIME 100
 
-//âðåìÿ êîììóòàöèè êàæäîé êíîïêè â ìñ
+//Ã¢Ã°Ã¥Ã¬Ã¿ ÃªÃ®Ã¬Ã¬Ã³Ã²Ã Ã¶Ã¨Ã¨ ÃªÃ Ã¦Ã¤Ã®Ã© ÃªÃ­Ã®Ã¯ÃªÃ¨ Ã¢ Ã¬Ã±
 #define BUT2_TIME_MS 1500
 #define BUT3_TIME_MS 2500
 #define BUT4_TIME_MS 3500
 
-//êîëè÷åñòâî òàêòîâ â ðåãèñòðå ARR â çàâèñèìîñòè îò çàäàííûõ ìñ
-#define DEF_ARR (1000-1) //íà÷àëüíîå çíà÷åíèå = 500ìñ
+//ÃªÃ®Ã«Ã¨Ã·Ã¥Ã±Ã²Ã¢Ã® Ã²Ã ÃªÃ²Ã®Ã¢ Ã¢ Ã°Ã¥Ã£Ã¨Ã±Ã²Ã°Ã¥ ARR Ã¢ Ã§Ã Ã¢Ã¨Ã±Ã¨Ã¬Ã®Ã±Ã²Ã¨ Ã®Ã² Ã§Ã Ã¤Ã Ã­Ã­Ã»Ãµ Ã¬Ã±
+#define DEF_ARR (1000-1) //Ã­Ã Ã·Ã Ã«Ã¼Ã­Ã®Ã¥ Ã§Ã­Ã Ã·Ã¥Ã­Ã¨Ã¥ = 500Ã¬Ã±
 #define BUT2_ARR (BUT2_TIME_MS/500*1000)
 #define BUT3_ARR (BUT3_TIME_MS/500*1000)
 #define BUT4_ARR (BUT4_TIME_MS/500*1000)
 
 #include "stm32f10x.h"
 
-int status = 0; //äëÿ îòñëåæèâàíèÿ íàæàòèÿ êíîïêè 1
-unsigned int delay = DEF_ARR; //ïåðåìåííàÿ, õðàíÿùàÿ âðåìÿ ïàóçû êíîïêè 1
-int light = DEF_ARR; //ïåðåìåííàÿ, õðàíÿçàÿ âðåìÿ êîììóòàöèè
+int status = 0; //Ã¤Ã«Ã¿ Ã®Ã²Ã±Ã«Ã¥Ã¦Ã¨Ã¢Ã Ã­Ã¨Ã¿ Ã­Ã Ã¦Ã Ã²Ã¨Ã¿ ÃªÃ­Ã®Ã¯ÃªÃ¨ 1
+unsigned int delay = DEF_ARR; //Ã¯Ã¥Ã°Ã¥Ã¬Ã¥Ã­Ã­Ã Ã¿, ÃµÃ°Ã Ã­Ã¿Ã¹Ã Ã¿ Ã¢Ã°Ã¥Ã¬Ã¿ Ã¯Ã Ã³Ã§Ã» ÃªÃ­Ã®Ã¯ÃªÃ¨ 1
+int light = DEF_ARR; //Ã¯Ã¥Ã°Ã¥Ã¬Ã¥Ã­Ã­Ã Ã¿, ÃµÃ°Ã Ã­Ã¿Ã§Ã Ã¿ Ã¢Ã°Ã¥Ã¬Ã¿ ÃªÃ®Ã¬Ã¬Ã³Ã²Ã Ã¶Ã¨Ã¨
 
 int main(void)
 {
-		//âêëþ÷àåì òàêòèðîâàíèå ïîðòîà Ñ è Â
+		//Ã¢ÃªÃ«Ã¾Ã·Ã Ã¥Ã¬ Ã²Ã ÃªÃ²Ã¨Ã°Ã®Ã¢Ã Ã­Ã¨Ã¥ Ã¯Ã®Ã°Ã²Ã®Ã  Ã‘ Ã¨ Ã‚
 		RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
 		RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
 
@@ -52,21 +52,21 @@ int main(void)
 						GPIO_CRH_MODE14_0 | GPIO_CRH_MODE14_1 | GPIO_CRH_CNF14_0 | GPIO_CRH_CNF14_1);
 		GPIOB->CRL &= ~(GPIO_CRL_MODE7 | GPIO_CRL_CNF7);
 
-		//íàñòðàèâàåì ñâåòîäèîä íà âûõîä, êíîïêè íà âõîä
+		//Ã­Ã Ã±Ã²Ã°Ã Ã¨Ã¢Ã Ã¥Ã¬ Ã±Ã¢Ã¥Ã²Ã®Ã¤Ã¨Ã®Ã¤ Ã­Ã  Ã¢Ã»ÃµÃ®Ã¤, ÃªÃ­Ã®Ã¯ÃªÃ¨ Ã­Ã  Ã¢ÃµÃ®Ã¤
 		GPIOC->CRH |= (GPIO_CRH_MODE13_1 | GPIO_CRH_CNF14_1);
 		GPIOB->CRH |= (GPIO_CRH_CNF10_1 | GPIO_CRH_CNF14_1);
 		GPIOB->CRL |= GPIO_CRL_CNF7_1;
 
-		//êíîïêà 1 - âíóòð.ïîäòÿæêà ê çåìëå
+		//ÃªÃ­Ã®Ã¯ÃªÃ  1 - Ã¢Ã­Ã³Ã²Ã°.Ã¯Ã®Ã¤Ã²Ã¿Ã¦ÃªÃ  Ãª Ã§Ã¥Ã¬Ã«Ã¥
 		GPIOC->ODR &= ~GPIO_ODR_ODR14;
-		//êíîïêà 2 - âíóòð.ïîäòÿæêà ê çåìëå
+		//ÃªÃ­Ã®Ã¯ÃªÃ  2 - Ã¢Ã­Ã³Ã²Ã°.Ã¯Ã®Ã¤Ã²Ã¿Ã¦ÃªÃ  Ãª Ã§Ã¥Ã¬Ã«Ã¥
 		GPIOB->ODR &= ~GPIO_ODR_ODR10;
-		//êíîïêè 3 è 4 - âíóòð.ïîäòÿæêà ê ïèòàíèþ
+		//ÃªÃ­Ã®Ã¯ÃªÃ¨ 3 Ã¨ 4 - Ã¢Ã­Ã³Ã²Ã°.Ã¯Ã®Ã¤Ã²Ã¿Ã¦ÃªÃ  Ãª Ã¯Ã¨Ã²Ã Ã­Ã¨Ã¾
 		GPIOB->ODR |= (GPIO_ODR_ODR14 | GPIO_ODR_ODR7);
 
-		// Âêëþ÷àåì òàêòèðîâàíèå òàéìåðà
-		RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-		//èíèöèàëèçèðóåì òàéìåð
+		// Ã‚ÃªÃ«Ã¾Ã·Ã Ã¥Ã¬ Ã²Ã ÃªÃ²Ã¨Ã°Ã®Ã¢Ã Ã­Ã¨Ã¥ Ã²Ã Ã©Ã¬Ã¥Ã°Ã 
+	//	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+		//Ã¨Ã­Ã¨Ã¶Ã¨Ã Ã«Ã¨Ã§Ã¨Ã°Ã³Ã¥Ã¬ Ã²Ã Ã©Ã¬Ã¥Ã°
 		TIM_TimeBaseInitTypeDef tim3;
 		tim3.TIM_ClockDivision = TIM_CKD_DIV1;
 		tim3.TIM_CounterMode = TIM_CounterMode_Up;
@@ -75,13 +75,19 @@ int main(void)
 		TIM_TimeBaseInit(TIM3, &tim3);
 	//	TIM3->PSC = 36000 - 1;
 	//	TIM3->ARR = DEF_ARR;
-		//çàïóñêàåì òàéìåð
+		//Ã§Ã Ã¯Ã³Ã±ÃªÃ Ã¥Ã¬ Ã²Ã Ã©Ã¬Ã¥Ã°
 	//	TIM3->CR1 |= TIM_CR1_CEN;
-		//ðàçðåøàåì ïðåðûâàíèå
+		//Ã°Ã Ã§Ã°Ã¥Ã¸Ã Ã¥Ã¬ Ã¯Ã°Ã¥Ã°Ã»Ã¢Ã Ã­Ã¨Ã¥
 	//	TIM3->DIER |= TIM_DIER_UIE;
 
-		//ðàçðåøàåì îáðàáîòêó ïðåðûâàíèÿ
-		NVIC_EnableIRQ(TIM3_IRQn);
+		//Ã°Ã Ã§Ã°Ã¥Ã¸Ã Ã¥Ã¬ Ã®Ã¡Ã°Ã Ã¡Ã®Ã²ÃªÃ³ Ã¯Ã°Ã¥Ã°Ã»Ã¢Ã Ã­Ã¨Ã¿
+	//	NVIC_EnableIRQ(TIM3_IRQn);
+	NVIC_InitTypeDef nvicInit;
+	nvicInit.NVIC_IRQChannel = TIM3_IRQn;
+	nvicInit.NVIC_IRQChannelCmd = ENABLE;
+	nvicInit.NVIC_IRQChannelPremptionPriority = 0;
+	nvicInit.NVIC_IRQChannelSubPriority = 0;
+	NVICInit(&nvicInit);
 	for(;;)
 	{
 		if (IS_BUT1_PUSH)
@@ -126,7 +132,7 @@ int main(void)
 	}
 }
 void TIM3_IRQHandler(void) {
-	TIM3->SR &= ~TIM_SR_UIF; //ñáðîñ ôëàãà
+	TIM3->SR &= ~TIM_SR_UIF; //Ã±Ã¡Ã°Ã®Ã± Ã´Ã«Ã Ã£Ã 
 	if (IS_LED_OFF)
 	{
 		SET_LED_ON;
