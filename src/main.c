@@ -7,10 +7,10 @@
   * @brief   Default main function.
   ******************************************************************************
 */
-#define IS_BUT1_PUSH (GPIOReadInputDataBit(GPIOC, GPIO_Pin14)) //êíîïêà 1 PC14
-#define IS_BUT2_PUSH (GPIOReadInputDataBit(GPIOB, GPIO_Pin10)) //êíîïêà 2 PB10
-#define IS_BUT3_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin14))) //êíîïêà 3 PB14
-#define IS_BUT4_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin7))) //êíîïêà 4 PB7
+#define IS_BUT1_PUSH (GPIOReadInputDataBit(GPIOC, GPIO_Pin_14)) //кнопка 1 PC14
+#define IS_BUT2_PUSH (GPIOReadInputDataBit(GPIOB, GPIO_Pin_10)) //кнопка 2 PB10
+#define IS_BUT3_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin_14))) //кнопка 3 PB14
+#define IS_BUT4_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin_7))) //кнопка 4 PB7
 
 //óñòàíîâêà ñâåòîäèîäà â ñîñòîÿíèå "ãîðåòü" - ëîãè÷.0 (reset)
 //è â ñîñòîÿíèå "íå ãîðåòü" - ëîãè÷.1 (set)
