@@ -7,10 +7,10 @@
   * @brief   Default main function.
   ******************************************************************************
 */
-#define IS_BUT1_PUSH (GPIOC->IDR & GPIO_IDR_IDR14) //êíîïêà 1 PC14
-#define IS_BUT2_PUSH (GPIOB->IDR & GPIO_IDR_IDR10) //êíîïêà 2 PB10
-#define IS_BUT3_PUSH (!(GPIOB->IDR & GPIO_IDR_IDR14)) //êíîïêà 3 PB14
-#define IS_BUT4_PUSH (!(GPIOB->IDR & GPIO_IDR_IDR7)) //êíîïêà 4 PB7
+#define IS_BUT1_PUSH (GPIOReadInputDataBit(GPIOC, GPIO_Pin14)) //êíîïêà 1 PC14
+#define IS_BUT2_PUSH (GPIOReadInputDataBit(GPIOB, GPIO_Pin10)) //êíîïêà 2 PB10
+#define IS_BUT3_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin14))) //êíîïêà 3 PB14
+#define IS_BUT4_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin7))) //êíîïêà 4 PB7
 
 //óñòàíîâêà ñâåòîäèîäà â ñîñòîÿíèå "ãîðåòü" - ëîãè÷.0 (reset)
 //è â ñîñòîÿíèå "íå ãîðåòü" - ëîãè÷.1 (set)
@@ -18,7 +18,7 @@
 #define SET_LED_OFF (GPIOC->BSRR=GPIO_BSRR_BS13)
 
 //ïðîâåðêà ñîñòîÿíèÿ äèîäà
-#define IS_LED_OFF (GPIOC->ODR & GPIO_ODR_ODR13)
+#define IS_LED_OFF (GPIOReadOutputDataBit(GPIOC, GPIO_Pin13))
 
 //ìèíèìàëüíàÿ çàäåðæêà êíîïêè 1 = 50ìñ
 #define MIN_TIME 100
