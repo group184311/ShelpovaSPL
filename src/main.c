@@ -14,8 +14,8 @@
 
 //óñòàíîâêà ñâåòîäèîäà â ñîñòîÿíèå "ãîðåòü" - ëîãè÷.0 (reset)
 //è â ñîñòîÿíèå "íå ãîðåòü" - ëîãè÷.1 (set)
-#define SET_LED_ON (GPIOC->BSRR=GPIO_BSRR_BR13)
-#define SET_LED_OFF (GPIOC->BSRR=GPIO_BSRR_BS13)
+#define SET_LED_ON (GPIO_WriteBit(GPIOC, GPIO_Pin13_RESET))
+#define SET_LED_OFF (GPIO_WriteBit(GPIOC, GPIO_Pin13_SET))
 
 //ïðîâåðêà ñîñòîÿíèÿ äèîäà
 #define IS_LED_OFF (GPIOReadOutputDataBit(GPIOC, GPIO_Pin13))
