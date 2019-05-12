@@ -14,8 +14,8 @@
 
 //установка светодиода в состояние "гореть" - логич.0 (reset)
 //в состояние "не гореть" - логич.1 (set)
-#define SET_LED_ON (GPIO_WriteBit(GPIOC, GPIO_Pin_13, RESET))
-#define SET_LED_OFF (GPIO_WriteBit(GPIOC, GPIO_Pin_13, SET))
+#define SET_LED_ON (GPIO_ResetBits(GPIOC, GPIO_Pin_13))
+#define SET_LED_OFF (GPIO_SetBits(GPIOC, GPIO_Pin_13))
 
 //проверка состояния диода
 #define IS_LED_OFF (GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_13))
@@ -64,8 +64,7 @@ int main(void)
 
 		GPIO_Init(GPIOB, &gpio_init);
 
-		gpio_init.GPIO_Pin = GPIO_Pin_14;
-		gpio_init.GPIO_Pin = GPIO_Pin_7;
+		gpio_init.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_7;
 		gpio_init.GPIO_Mode = GPIO_Mode_IPU;
 
 		GPIO_Init(GPIOB, &gpio_init);
@@ -138,7 +137,7 @@ int main(void)
 		}
 	}
 }
-void TIM3_IRQHandler(TIM_TimeBaseInitTypeDef tim) {
+void TIM3_IRQHandler(void) {
 	TIM_ClearFlag(TIM3, TIM_IT_Update); //сброс флага
 	if (IS_LED_OFF)
 	{
