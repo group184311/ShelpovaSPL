@@ -7,110 +7,122 @@
   * @brief   Default main function.
   ******************************************************************************
 */
-#define IS_BUT1_PUSH (GPIOReadInputDataBit(GPIOC, GPIO_Pin_14)) //РєРЅРѕРїРєР° 1 PC14
-#define IS_BUT2_PUSH (GPIOReadInputDataBit(GPIOB, GPIO_Pin_10)) //РєРЅРѕРїРєР° 2 PB10
-#define IS_BUT3_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin_14))) //РєРЅРѕРїРєР° 3 PB14
-#define IS_BUT4_PUSH (!(GPIOReadInputDataBit(GPIOB, GPIO_Pin_7))) //РєРЅРѕРїРєР° 4 PB7
+#define IS_BUT1_PUSH (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_14)) //кнопка 1 PC14
+#define IS_BUT2_PUSH (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10)) //кнопка 2 PB10
+#define IS_BUT3_PUSH (!(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14))) //кнопка 3 PB14
+#define IS_BUT4_PUSH (!(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_7))) //кнопка 4 PB7
 
-//ГіГ±ГІГ Г­Г®ГўГЄГ  Г±ГўГҐГІГ®Г¤ГЁГ®Г¤Г  Гў Г±Г®Г±ГІГ®ГїГ­ГЁГҐ "ГЈГ®Г°ГҐГІГј" - Г«Г®ГЈГЁГ·.0 (reset)
-//ГЁ Гў Г±Г®Г±ГІГ®ГїГ­ГЁГҐ "Г­ГҐ ГЈГ®Г°ГҐГІГј" - Г«Г®ГЈГЁГ·.1 (set)
-#define SET_LED_ON (GPIO_WriteBit(GPIOC, GPIO_Pin13_RESET))
-#define SET_LED_OFF (GPIO_WriteBit(GPIOC, GPIO_Pin13_SET))
+//установка светодиода в состояние "гореть" - логич.0 (reset)
+//в состояние "не гореть" - логич.1 (set)
+#define SET_LED_ON (GPIO_ResetBits(GPIOC, GPIO_Pin_13))
+#define SET_LED_OFF (GPIO_SetBits(GPIOC, GPIO_Pin_13))
 
-//ГЇГ°Г®ГўГҐГ°ГЄГ  Г±Г®Г±ГІГ®ГїГ­ГЁГї Г¤ГЁГ®Г¤Г 
-#define IS_LED_OFF (GPIOReadOutputDataBit(GPIOC, GPIO_Pin13))
+//проверка состояния диода
+#define IS_LED_OFF (GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_13))
 
-//Г¬ГЁГ­ГЁГ¬Г Г«ГјГ­Г Гї Г§Г Г¤ГҐГ°Г¦ГЄГ  ГЄГ­Г®ГЇГЄГЁ 1 = 50Г¬Г±
+//минимальная задержка кнопки 1 = 50мс
 #define MIN_TIME 100
 
-//ГўГ°ГҐГ¬Гї ГЄГ®Г¬Г¬ГіГІГ Г¶ГЁГЁ ГЄГ Г¦Г¤Г®Г© ГЄГ­Г®ГЇГЄГЁ Гў Г¬Г±
+//время коммутации каждой кнопки в мс
 #define BUT2_TIME_MS 1500
 #define BUT3_TIME_MS 2500
 #define BUT4_TIME_MS 3500
 
-//ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГІГ ГЄГІГ®Гў Гў Г°ГҐГЈГЁГ±ГІГ°ГҐ ARR Гў Г§Г ГўГЁГ±ГЁГ¬Г®Г±ГІГЁ Г®ГІ Г§Г Г¤Г Г­Г­Г»Гµ Г¬Г±
-#define DEF_ARR (1000-1) //Г­Г Г·Г Г«ГјГ­Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ = 500Г¬Г±
+//количество тактов в регистре ARR в зависимости от заданных мс
+#define DEF_ARR (1000-1) //начальное значение = 500мс
 #define BUT2_ARR (BUT2_TIME_MS/500*1000)
 #define BUT3_ARR (BUT3_TIME_MS/500*1000)
 #define BUT4_ARR (BUT4_TIME_MS/500*1000)
 
 #include "stm32f10x.h"
 
-int status = 0; //Г¤Г«Гї Г®ГІГ±Г«ГҐГ¦ГЁГўГ Г­ГЁГї Г­Г Г¦Г ГІГЁГї ГЄГ­Г®ГЇГЄГЁ 1
-unsigned int delay = DEF_ARR; //ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г Гї, ГµГ°Г Г­ГїГ№Г Гї ГўГ°ГҐГ¬Гї ГЇГ ГіГ§Г» ГЄГ­Г®ГЇГЄГЁ 1
-int light = DEF_ARR; //ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г Гї, ГµГ°Г Г­ГїГ§Г Гї ГўГ°ГҐГ¬Гї ГЄГ®Г¬Г¬ГіГІГ Г¶ГЁГЁ
+int status = 0; //для отслеживания нажатия кнопки 1
+unsigned int delay = DEF_ARR; //переменная, хранящая время паузы кнопки 1
+int light = DEF_ARR; //переменная, хранящая время коммутации
+
+TIM_TimeBaseInitTypeDef tim;
 
 int main(void)
 {
-		//ГўГЄГ«ГѕГ·Г ГҐГ¬ ГІГ ГЄГІГЁГ°Г®ГўГ Г­ГЁГҐ ГЇГ®Г°ГІГ®Г  Г‘ ГЁ Г‚
-		RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
-		RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+		//включаем тактирование портов С и В
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
-		GPIOC->CRH &= ~(GPIO_CRH_CNF13_1 | GPIO_CRH_CNF13_0| GPIO_CRH_MODE13_1 | GPIO_CRH_MODE13_0 |
-						GPIO_CRH_MODE14_1 | GPIO_CRH_MODE14_0 | GPIO_CRH_CNF14_0 | GPIO_CRH_CNF14_1);
-		GPIOB->CRH &= ~(GPIO_CRH_MODE10_0 | GPIO_CRH_MODE10_1 | GPIO_CRH_CNF10_0 | GPIO_CRH_CNF10_1 |
-						GPIO_CRH_MODE14_0 | GPIO_CRH_MODE14_1 | GPIO_CRH_CNF14_0 | GPIO_CRH_CNF14_1);
-		GPIOB->CRL &= ~(GPIO_CRL_MODE7 | GPIO_CRL_CNF7);
+		GPIO_InitTypeDef gpio_init;
+		gpio_init.GPIO_Pin = GPIO_Pin_13;
+		gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+		gpio_init.GPIO_Speed = GPIO_Speed_2MHz;
 
-		//Г­Г Г±ГІГ°Г ГЁГўГ ГҐГ¬ Г±ГўГҐГІГ®Г¤ГЁГ®Г¤ Г­Г  ГўГ»ГµГ®Г¤, ГЄГ­Г®ГЇГЄГЁ Г­Г  ГўГµГ®Г¤
-		GPIOC->CRH |= (GPIO_CRH_MODE13_1 | GPIO_CRH_CNF14_1);
-		GPIOB->CRH |= (GPIO_CRH_CNF10_1 | GPIO_CRH_CNF14_1);
-		GPIOB->CRL |= GPIO_CRL_CNF7_1;
+		GPIO_Init(GPIOC, &gpio_init);
 
-		//ГЄГ­Г®ГЇГЄГ  1 - ГўГ­ГіГІГ°.ГЇГ®Г¤ГІГїГ¦ГЄГ  ГЄ Г§ГҐГ¬Г«ГҐ
-		GPIOC->ODR &= ~GPIO_ODR_ODR14;
-		//ГЄГ­Г®ГЇГЄГ  2 - ГўГ­ГіГІГ°.ГЇГ®Г¤ГІГїГ¦ГЄГ  ГЄ Г§ГҐГ¬Г«ГҐ
-		GPIOB->ODR &= ~GPIO_ODR_ODR10;
-		//ГЄГ­Г®ГЇГЄГЁ 3 ГЁ 4 - ГўГ­ГіГІГ°.ГЇГ®Г¤ГІГїГ¦ГЄГ  ГЄ ГЇГЁГІГ Г­ГЁГѕ
-		GPIOB->ODR |= (GPIO_ODR_ODR14 | GPIO_ODR_ODR7);
+		gpio_init.GPIO_Pin = GPIO_Pin_14;
+		gpio_init.GPIO_Mode = GPIO_Mode_IPD;
 
-		// Г‚ГЄГ«ГѕГ·Г ГҐГ¬ ГІГ ГЄГІГЁГ°Г®ГўГ Г­ГЁГҐ ГІГ Г©Г¬ГҐГ°Г 
-	//	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-		//ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°ГіГҐГ¬ ГІГ Г©Г¬ГҐГ°
-		TIM_TimeBaseInitTypeDef tim3;
-		tim3.TIM_ClockDivision = TIM_CKD_DIV1;
-		tim3.TIM_CounterMode = TIM_CounterMode_Up;
-		tim3.TIM_Period = 1000 - 1;
-		tim3.TIM_Prescaler = 36000 - 1;
-		TIM_TimeBaseInit(TIM3, &tim3);
-	//	TIM3->PSC = 36000 - 1;
-	//	TIM3->ARR = DEF_ARR;
-		//Г§Г ГЇГіГ±ГЄГ ГҐГ¬ ГІГ Г©Г¬ГҐГ°
-	//	TIM3->CR1 |= TIM_CR1_CEN;
-		//Г°Г Г§Г°ГҐГёГ ГҐГ¬ ГЇГ°ГҐГ°Г»ГўГ Г­ГЁГҐ
-	//	TIM3->DIER |= TIM_DIER_UIE;
+		GPIO_Init(GPIOC, &gpio_init);
 
-		//Г°Г Г§Г°ГҐГёГ ГҐГ¬ Г®ГЎГ°Г ГЎГ®ГІГЄГі ГЇГ°ГҐГ°Г»ГўГ Г­ГЁГї
-	//	NVIC_EnableIRQ(TIM3_IRQn);
-	NVIC_InitTypeDef nvicInit;
-	nvicInit.NVIC_IRQChannel = TIM3_IRQn;
-	nvicInit.NVIC_IRQChannelCmd = ENABLE;
-	nvicInit.NVIC_IRQChannelPremptionPriority = 0;
-	nvicInit.NVIC_IRQChannelSubPriority = 0;
-	NVICInit(&nvicInit);
+		gpio_init.GPIO_Pin = GPIO_Pin_10;
+		gpio_init.GPIO_Mode = GPIO_Mode_IPD;
+		gpio_init.GPIO_Speed = GPIO_Speed_2MHz;
+
+		GPIO_Init(GPIOB, &gpio_init);
+
+		gpio_init.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_7;
+		gpio_init.GPIO_Mode = GPIO_Mode_IPU;
+
+		GPIO_Init(GPIOB, &gpio_init);
+
+		//Включаем тактирование таймера
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+		//инициализируем таймер
+
+		tim.TIM_ClockDivision = TIM_CKD_DIV1;
+		tim.TIM_CounterMode = TIM_CounterMode_Up;
+		tim.TIM_Period = DEF_ARR;
+		tim.TIM_Prescaler = 36000 - 1; //36000
+
+		TIM_TimeBaseInit(TIM3, &tim);
+
+		//запускаем таймер
+		TIM_Cmd(TIM3, ENABLE);
+		//разрешаем прерывание
+		TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+
+		//разрешаем обработку прерывания
+		NVIC_InitTypeDef nvicInit;
+		nvicInit.NVIC_IRQChannel = TIM3_IRQn;
+		nvicInit.NVIC_IRQChannelCmd = ENABLE;
+		nvicInit.NVIC_IRQChannelPreemptionPriority = 0;
+		nvicInit.NVIC_IRQChannelSubPriority = 0;
+		NVIC_Init(&nvicInit);
+
 	for(;;)
 	{
 		if (IS_BUT1_PUSH)
 		{
-			TIM3->CR1 &= ~TIM_CR1_CEN;
+			TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+			TIM_Cmd(TIM3, DISABLE);
 			SET_LED_OFF;
-			TIM3->CNT = 0;
-			TIM3->ARR = UINT16_MAX;
-			TIM3->CR1 |= TIM_CR1_CEN;
+			TIM_SetCounter(TIM3, 0);
+			tim.TIM_Period = UINT16_MAX;
+			TIM_TimeBaseInit(TIM3, &tim);
+			TIM_Cmd(TIM3, ENABLE);
 			while(IS_BUT1_PUSH)
 			{
-				if ((TIM3->CNT) > MIN_TIME)
-				delay = TIM3->CNT;
+				if (TIM_GetCounter(TIM3) > MIN_TIME)
+				delay = TIM_GetCounter(TIM3);
 			}
 			status = 1;
+			TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+			SET_LED_ON;	
 		}
 		if ((!IS_BUT1_PUSH) & status)
 		{
-			TIM3->CR1 &= ~TIM_CR1_CEN;
-			TIM3->CNT = 0;
-			TIM3->ARR = 0;
-			TIM3->ARR = delay-1;
-			TIM3->CR1 |= TIM_CR1_CEN;
+			TIM_Cmd(TIM3, DISABLE);
+			TIM_SetCounter(TIM3, 0);
+			tim.TIM_Period = delay-1;
+			TIM_TimeBaseInit(TIM3, &tim);
+			TIM_Cmd(TIM3, ENABLE);
 			status = 0;
 		}
 		if (IS_BUT2_PUSH)
@@ -132,17 +144,19 @@ int main(void)
 	}
 }
 void TIM3_IRQHandler(void) {
-	TIM3->SR &= ~TIM_SR_UIF; //Г±ГЎГ°Г®Г± ГґГ«Г ГЈГ 
-	if (IS_LED_OFF)
-	{
-		SET_LED_ON;
-		TIM3->ARR = light-1;
-		return;
-	}
-	else
-	{
-		SET_LED_OFF;
-		TIM3->ARR = delay-1;
-		return;
+	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
+		if (IS_LED_OFF) {
+			SET_LED_ON;
+			tim.TIM_Period = light - 1;
+			TIM_TimeBaseInit(TIM3, &tim);
+			TIM_ClearFlag(TIM3, TIM_IT_Update); //сброс флага
+			return;
+		} else {
+			SET_LED_OFF;
+			tim.TIM_Period = delay - 1;
+			TIM_TimeBaseInit(TIM3, &tim);
+			TIM_ClearFlag(TIM3, TIM_IT_Update); //сброс флага
+			return;
+		}
 	}
 }
